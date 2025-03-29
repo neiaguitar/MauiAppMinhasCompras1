@@ -19,7 +19,6 @@ public partial class ListaProduto : ContentPage
         try
         {
             lista.Clear();
-
             List<Produto> tmp = await App.Db.GetAll();
 
             tmp.ForEach(i => lista.Add(i));
@@ -29,6 +28,7 @@ public partial class ListaProduto : ContentPage
             await DisplayAlert("Ops", ex.Message, "OK");
         }
     }
+
 
     private void ToolbarItem_Clicked(object sender, EventArgs e)
     {
@@ -49,6 +49,8 @@ public partial class ListaProduto : ContentPage
         {
             string q = e.NewTextValue;
 
+            lst_produtos.IsRefreshing = true;
+
             lista.Clear();
 
             List<Produto> tmp = await App.Db.Search(q);
@@ -58,6 +60,10 @@ public partial class ListaProduto : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Ops", ex.Message, "OK");
+        }
+        finally
+        {
+            lst_produtos.IsRefreshing = false;
         }
     }
 
@@ -81,7 +87,7 @@ public partial class ListaProduto : ContentPage
             bool confirm = await DisplayAlert(
                 "Tem Certeza?", $"Remover {p.Descricao}?", "Sim", "Não");
 
-            if (confirm)
+            if(confirm)
             {
                 await App.Db.Delete(p.Id);
                 lista.Remove(p);
@@ -109,4 +115,30 @@ public partial class ListaProduto : ContentPage
             DisplayAlert("Ops", ex.Message, "OK");
         }
     }
+
+    private async void lst_produtos_Refreshing(object sender, EventArgs e)
+    {
+        try
+        {
+            lista.Clear();
+
+            List<Produto> tmp = await App.Db.GetAll();
+
+            tmp.ForEach(i => lista.Add(i));
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ops", ex.Message, "OK");
+
+        } finally
+        {
+            lst_produtos.IsRefreshing = false;
+        }
+    }
+
+    private void ToolbarItem_Clicked_2(object sender, EventArgs e)
+    {
+        Navigation.PushAsync(new Views.RelatorioCategoria());
+    }
+
 }

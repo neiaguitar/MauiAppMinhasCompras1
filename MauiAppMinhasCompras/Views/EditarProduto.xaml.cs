@@ -1,13 +1,26 @@
-using MauiAppMinhasCompras.Models;
+﻿using MauiAppMinhasCompras.Models;
 
 namespace MauiAppMinhasCompras.Views;
 
 public partial class EditarProduto : ContentPage
 {
-	public EditarProduto()
-	{
-		InitializeComponent();
-	}
+    public List<string> Categorias { get; set; } // Lista de Categorias
+
+    public EditarProduto()
+    {
+        InitializeComponent();
+
+        // Exemplo de categorias para teste
+        Categorias = new List<string>
+        {
+            "Sem Categoria",
+            "Alimentos",
+            "Bebidas",
+            "Limpeza"
+        };
+
+        BindingContext = this; // Define o BindingContext
+    }
 
     private async void ToolbarItem_Clicked(object sender, EventArgs e)
     {
@@ -15,21 +28,37 @@ public partial class EditarProduto : ContentPage
         {
             Produto produto_anexado = BindingContext as Produto;
 
-            Produto p = new Produto
-            {
-                Id = produto_anexado.Id,
-                Descricao = txt_descricao.Text,
-                Quantidade = Convert.ToDouble(txt_quantidade.Text),
-                Preco = Convert.ToDouble(txt_preco.Text)
-            };
+            if (produto_anexado == null)
+                return;
 
-            await App.Db.Update(p);
+            produto_anexado.Descricao = txt_descricao.Text;
+            produto_anexado.Quantidade = Convert.ToDouble(txt_quantidade.Text);
+            produto_anexado.Preco = Convert.ToDouble(txt_preco.Text);
+
+            // Atualiza a categoria com base na seleção do Picker
+            produto_anexado.Categoria = picker_categoria.SelectedItem as string ?? "Sem Categoria";
+
+            await App.Db.Update(produto_anexado);
+
             await DisplayAlert("Sucesso!", "Registro Atualizado", "OK");
             await Navigation.PopAsync();
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Ops", ex.Message, "OK");
+            await DisplayAlert("Erro", ex.Message, "OK");
+        }
+    }
+
+    private void PickerCategoria_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var picker = sender as Picker;
+        if (picker != null)
+        {
+            Produto produto_anexado = BindingContext as Produto;
+            if (produto_anexado != null)
+            {
+                produto_anexado.Categoria = picker.SelectedItem as string ?? "Sem Categoria";
+            }
         }
     }
 }
