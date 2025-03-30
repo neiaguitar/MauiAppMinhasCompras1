@@ -27,16 +27,14 @@ public partial class EditarProduto : ContentPage
         try
         {
             Produto produto_anexado = BindingContext as Produto;
-
-            if (produto_anexado == null)
-                return;
+            if (produto_anexado == null) return;
 
             produto_anexado.Descricao = txt_descricao.Text;
             produto_anexado.Quantidade = Convert.ToDouble(txt_quantidade.Text);
             produto_anexado.Preco = Convert.ToDouble(txt_preco.Text);
 
-            // Atualiza a categoria com base na seleção do Picker
-            produto_anexado.Categoria = picker_categoria.SelectedItem as string ?? "Sem Categoria";
+            // ✅ Captura a nova categoria do Picker
+            produto_anexado.Categoria = picker_categoria.SelectedItem?.ToString() ?? "Sem Categoria";
 
             await App.Db.Update(produto_anexado);
 
@@ -48,6 +46,7 @@ public partial class EditarProduto : ContentPage
             await DisplayAlert("Erro", ex.Message, "OK");
         }
     }
+
 
     private void PickerCategoria_SelectedIndexChanged(object sender, EventArgs e)
     {
